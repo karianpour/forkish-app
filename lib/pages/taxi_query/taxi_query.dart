@@ -27,7 +27,7 @@ Widget taxiQuery(BuildContext context) {
     children: <Widget>[
       MapArea(state: state),
       if(state.getPickup()==null || state.getDestination()==null) CenterMarker(state: state),
-      AddressPanel(state: state),
+      if(state.getRide()==null) AddressPanel(state: state),
       if(state.getPickup()==null) PickupAlert(state: state),
       if(state.getPickup()!=null && state.getDestination()==null) DestinationAlert(state: state),
       if(state.getPickup()!=null && state.getDestination()!=null && !state.getRequestingRide() && state.getRide()==null) OfferSelection(state: state),
@@ -118,8 +118,8 @@ class RidePanel extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox.fromSize(size: Size.fromHeight(20),),
-          SizedBox(
+          SizedBox(height: 20),
+          Container(
             width: double.infinity,
             child: RaisedButton(
               child: Text(
@@ -231,32 +231,34 @@ class RidePanel extends StatelessWidget {
 
   Container buildRideData(BuildContext context) {
     return Container(
-      height: 80,
+      // height: 80,
+      // width: double.infinity,
       padding: const EdgeInsets.only(top: 4),
       decoration: BoxDecoration(
         border: Border(top: BorderSide(width: 1, color: Colors.black54))
       ),
-      //singlechilescrollview
-      child: ListView(
+      child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
-        children: <Widget>[
-          RideDatalet(
-            label: translate("taxi_query.distance"), 
-            data: translate("taxi_query.distanceKilometer", args: {"distance": formatNumber(context, state.getRideApproach().distance / 1000)}),
-          ),
-          RideDatalet(
-            label: translate("taxi_query.eta"), 
-            data: translate("taxi_query.etaMinute", args: {"eta": formatNumber(context, (state.getRideApproach().eta / 60).ceil())}),
-          ),
-          RideDatalet(
-            label: translate("taxi_query.figure"), 
-            data: translate('taxi_query.price', args: {'price': formatNumber(context, state.getRide().price)}),
-          ),
-          RideDatalet(
-            label: translate("taxi_query.paymentMethod"), 
-            data: translate(state.getRide().paymentType.toString()),
-          ),
-        ],
+        child: Row(
+          children: <Widget>[
+            RideDatalet(
+              label: translate("taxi_query.distance"), 
+              data: translate("taxi_query.distanceKilometer", args: {"distance": formatNumber(context, state.getRideApproach().distance / 1000)}),
+            ),
+            RideDatalet(
+              label: translate("taxi_query.eta"), 
+              data: translate("taxi_query.etaMinute", args: {"eta": formatNumber(context, (state.getRideApproach().eta / 60).ceil())}),
+            ),
+            RideDatalet(
+              label: translate("taxi_query.figure"), 
+              data: translate('taxi_query.price', args: {'price': formatNumber(context, state.getRide().price)}),
+            ),
+            RideDatalet(
+              label: translate("taxi_query.paymentMethod"), 
+              data: translate(state.getRide().paymentType.toString()),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -370,8 +372,8 @@ class RideQueryPanel extends StatelessWidget {
             ),
             child: Center(child: CircularProgressIndicator()),
           ),
-          SizedBox.fromSize(size: Size.fromHeight(20),),
-          SizedBox(
+          SizedBox(height: 20),
+          Container(
             width: double.infinity,
             child: RaisedButton(
               child: Text(
@@ -411,7 +413,8 @@ class OfferSelection extends StatelessWidget {
         child: Column(
           children: <Widget>[
             Container (
-              height: 170,
+              width: double.infinity,
+              // height: 170,
               decoration: BoxDecoration(
                 color: Color.fromRGBO(255, 255, 255, 1),
                 borderRadius: BorderRadius.circular(4),
@@ -422,21 +425,26 @@ class OfferSelection extends StatelessWidget {
                   offset: Offset(5, 5),
                 )]
               ),
-              child: state.getOffers() != null ? ListView(
+              child: state.getOffers() != null ? SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                children: <Widget>[
-                  for(var offer in state.getOffers()) Padding(
-                    padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 8, bottom: 8),
-                    child: TaxiOffer(offer: offer, state: state),
-                  ),
-                ],
+                child: Row(
+                  children: <Widget>[
+                    for(var offer in state.getOffers()) Padding(
+                      padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 8, bottom: 8),
+                      child: TaxiOffer(offer: offer, state: state),
+                    ),
+                  ],
+                ),
               ) : state.getRequestingOffers() ? 
-                SizedBox(width: double.infinity, child: Center(child: CircularProgressIndicator()))
+                Container(
+                 height: 160,
+                 width: double.infinity, child: Center(child: CircularProgressIndicator())
+                )
                 :
-                SizedBox(width: double.infinity, child: Center(child: Text('error'))),
+                Container(width: double.infinity, child: Center(child: Text('error'))),
             ),
-            SizedBox.fromSize(size: Size.fromHeight(20),),
-            SizedBox(
+            SizedBox(height: 20),
+            Container(
               width: double.infinity,
               child: RaisedButton(
                 child: Text(
@@ -771,7 +779,7 @@ class AddressPanel extends StatelessWidget {
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.only(top: 14.0, bottom: 14.0),
-                    child: state.getRequestingLocation() ? Center(child: SizedBox(height: 21, width: 22, child: CircularProgressIndicator())) : Text(
+                    child: state.getRequestingLocation() ? Center(child: SizedBox(height: 21, width: 21, child: CircularProgressIndicator())) : Text(
                       "${state.getLocation()?.name ?? ''}",
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -827,7 +835,7 @@ class AddressPanel extends StatelessWidget {
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.only(top: 14.0, bottom: 14.0),
-                    child: state.getRequestingLocation() ? Center(child: CircularProgressIndicator()) : Text(
+                    child: state.getRequestingLocation() ? Center(child: SizedBox(height: 21, width: 21, child: CircularProgressIndicator())) : Text(
                       "${state.getLocation()?.name ?? ''}",
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
