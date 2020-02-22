@@ -2,13 +2,15 @@ import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:for_kish/models/auth.dart';
+import 'package:for_kish/pages/login/confirm.dart';
 import 'package:for_kish/pages/login/login.dart';
 import 'package:for_kish/pages/taxi_query/test.dart';
 import 'package:for_kish/translate_preferences.dart';
 import 'package:functional_widget_annotation/functional_widget_annotation.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-// import 'package:flutter_cupertino_localizations/flutter_cupertino_localizations.dart';
 import 'package:flutter_translate/flutter_translate.dart';
+import 'package:provider/provider.dart';
 
 import 'pages/taxi_query/taxi_query.dart';
 
@@ -42,26 +44,43 @@ Widget myApp(BuildContext context) {
   
   return LocalizationProvider(
     state: LocalizationProvider.of(context).state,
-    child: MaterialApp(
-      // debugShowCheckedModeBanner: false,
-      // theme: ThemeData.dark(),
-      theme: ThemeData(
-        fontFamily: 'Nika',
-        // primarySwatch: Colors.blue,
+    child: ChangeNotifierProvider(
+      create: (_) => Auth(),
+      child: MaterialApp(
+        // debugShowCheckedModeBanner: false,
+        // theme: ThemeData.dark(),
+        theme: ThemeData(
+          fontFamily: 'Nika',
+          // primarySwatch: Colors.blue,
+        ),
+        localizationsDelegates: [
+          // ... app-specific localization delegate[s] here
+          localizationDelegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: localizationDelegate.supportedLocales,
+        locale: localizationDelegate.currentLocale,
+        initialRoute: '/',
+        routes: forKishRoutes,
+        onGenerateRoute: App.router.generator,
+        home: Consumer<Auth>(
+          builder: (context, auth, _) {
+            if(!auth.loaded){
+              return Scaffold(body: Container());
+            }else if(!auth.loggedin){
+              if(!auth.waitingForCode){
+                return Scaffold(body: Login());
+              }else{
+                return Scaffold(body: Confirm());
+              }
+            }else{
+              return TaxiScaffold(body: Container());
+            }
+          },
+        ),
       ),
-      localizationsDelegates: [
-        // ... app-specific localization delegate[s] here
-        localizationDelegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: localizationDelegate.supportedLocales,
-      locale: localizationDelegate.currentLocale,
-      initialRoute: '/',
-      routes: forKishRoutes,
-      onGenerateRoute: App.router.generator,
-      home: TaxiScaffold(body: Container()),
     ),
   );
 }
@@ -102,12 +121,13 @@ Widget taxiScaffold(BuildContext context, { @required Widget body }) {
 
 final Map<String, WidgetBuilder> forKishRoutes = {
   '/taxi_query': (context) => TaxiScaffold(body: TaxiQuery()),
-  '/login': (context) => TaxiScaffold(body: LoginManager()),
   '/test': (context) => TaxiScaffold(body: Test()),
 };
 
 @widget
 Widget appDrawer(BuildContext context) {
+  final auth = Provider.of<Auth>(context);
+
   return Drawer(
     child: ListView(
       // Important: Remove any padding from the ListView.
@@ -134,10 +154,11 @@ Widget appDrawer(BuildContext context) {
           },
         ),
         ListTile(
-          title: Text(translate('menu.login')),
+          title: Text(translate('menu.logout')),
           onTap: () {
             Navigator.of(context).pop();
-            Navigator.pushNamed(context, '/login');
+            Navigator.pushNamed(context, '/');
+            auth.relogin();
           },
         ),
         ListTile(

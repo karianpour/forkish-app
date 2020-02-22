@@ -11,7 +11,7 @@ import 'package:for_kish/pages/address/address_query.dart';
 import 'package:functional_widget_annotation/functional_widget_annotation.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../hooks/map_hook.dart';
+import '../../models/map_hook.dart';
 
 part 'taxi_query.g.dart';
 

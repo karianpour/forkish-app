@@ -7,7 +7,7 @@
     "title": "فورکیش"
   },
   "menu": {
-    "login": "ورود",
+    "logout": "خروج",
     "taxi_query": "جستجوی تاکسی"
   },
   "login": {
@@ -20,7 +20,11 @@
     "resend_code_after": "ارسال مجدد پس از",
     "mobile_alert": "شما در حال ورود با شماره \u200e{mobile} هستید.",
     "change_number": "جهت تغییر شماره کلیک نمایید",
-    "confirm": "تایید"
+    "confirm": "تایید",
+    "mobile_does_not_match": "فرمت نامناسب است",
+    "mobile_is_needed": "شماره تلفن همراه الزامی است",
+    "code_should_be_4": "کد باید ۴ رقم باشد",
+    "failed_to_verify": "تایید کد شکست خورد"
   },
   "taxi_query": {
     "pickup": {

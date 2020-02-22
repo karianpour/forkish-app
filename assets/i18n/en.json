@@ -7,7 +7,7 @@
     "title": "4Kish"
   },
   "menu": {
-    "login": "Login",
+    "logout": "Logout",
     "taxi_query": "Taxi Query"
   },
   "login": {
@@ -20,7 +20,11 @@
     "resend_code_after": "Resend Code After",
     "mobile_alert": "You Are Trying To Login With {mobile}",
     "change_number": "Change the Number",
-    "confirm": "Confirm"
+    "confirm": "Confirm",
+    "mobile_does_not_match": "format does not match",
+    "mobile_is_needed": "mobile number is mandatory",
+    "code_should_be_4": "code should be 4 digits",
+    "failed_to_verify": "failed to verify the code"
   },
   "taxi_query": {
     "pickup": {

@@ -1,3 +1,24 @@
+class Passenger {
+  String firstName;
+  String lastName;
+  String mobile;
+
+  Passenger({this.firstName, this.lastName, this.mobile});
+
+  Passenger.fromJson(Map<String, dynamic> json)
+      : firstName = json['firstName'],
+        lastName = json['lastName'],
+        mobile = json['mobile'];
+
+  Map<String, dynamic> toJson() =>
+    {
+      'firstName': firstName,
+      'lastName': lastName,
+      'mobile': mobile,
+    };
+
+}
+
 class LocationList {
   List<Location> locations;
 

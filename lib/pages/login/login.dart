@@ -1,37 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_translate/flutter_translate.dart';
+import 'package:for_kish/models/auth.dart';
 import 'package:functional_widget_annotation/functional_widget_annotation.dart';
-
-import 'confirm.dart';
+import 'package:provider/provider.dart';
 
 part 'login.g.dart';
 
-@widget
-Widget loginManager(BuildContext context) {
-  final page = useState(false);
-  return !page.value ? 
-    Login(page: page)
-    :
-    Confirm(page: page)
-    ;
+// RegExp mobilePattern = RegExp(r'^(?:[+0]9)?[0-9]{10}$');
+RegExp mobilePattern = RegExp(r'^09[0-9]{9}$');
+
+class LoginData {
+  String mobile = "";
 }
 
 @widget
-Widget login(BuildContext context, {ValueNotifier<bool> page}) {
-  // final key = use;
+Widget login(BuildContext context) {
+  final auth = Provider.of<Auth>(context);
+  final formKey = useMemoized(()=>GlobalKey<FormState>());
+  final data = useMemoized(() => LoginData());
+
   final locale = LocalizedApp.of(context).delegate.currentLocale.languageCode;
 
   return Container(
     padding: const EdgeInsets.only(left: 20, right: 20),
     child: Form(
-      // key: form,
+      key: formKey,
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            SizedBox.fromSize(size: Size.fromHeight(100)),
+            SizedBox(height: 100),
             Image.asset('assets/images/car.png', height: 100,),
             Text(
               translate('login.welcome'),
@@ -41,33 +41,44 @@ Widget login(BuildContext context, {ValueNotifier<bool> page}) {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox.fromSize(size: Size.fromHeight(16)),
+            SizedBox(height: 16),
             Text(
               translate('login.welcome_desc'),
               textAlign: TextAlign.center,
             ),
-            SizedBox.fromSize(size: Size.fromHeight(100)),
+            SizedBox(height: 100),
             Directionality(
               textDirection: TextDirection.ltr,
               child: TextFormField(
                 decoration: InputDecoration(
                   labelText: translate('login.mobile'),
                   prefixIcon: Icon(Icons.call),
-                  hintText: "+989121111111",
+                  // hintText: "+989121111111",
+                  hintText: "09121234567",
                 ),
                 keyboardType: TextInputType.phone,
+                onChanged: (value){
+                  data.mobile = value;
+                },
+                validator: (value){
+                  if(value=='') return translate('login.mobile_is_needed');
+                  if(!mobilePattern.hasMatch(value)) return translate('login.mobile_does_not_match');
+                  return null;
+                },
               ),
             ),
-            SizedBox.fromSize(size: Size.fromHeight(20)),
+            SizedBox(height: 20),
             RaisedButton(
               onPressed: (){
-                page.value = true;
+                if(formKey.currentState.validate()){
+                  auth.login(data.mobile);
+                }
               },
               child: Text(translate('login.login')),
               color: Colors.blue,
               textColor: Colors.white,
             ),
-            SizedBox.fromSize(size: Size.fromHeight(20)),
+            SizedBox(height: 20),
             Align(
               alignment: AlignmentDirectional.centerEnd,
               child: Container(
@@ -89,7 +100,7 @@ Widget login(BuildContext context, {ValueNotifier<bool> page}) {
                 ),
               ),
             ),
-            SizedBox.fromSize(size: Size.fromHeight(50)),
+            SizedBox(height: 50),
           ],
         ),
       ),

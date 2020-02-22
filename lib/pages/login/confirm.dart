@@ -1,26 +1,36 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_translate/flutter_translate.dart';
+import 'package:for_kish/models/auth.dart';
 import 'package:functional_widget_annotation/functional_widget_annotation.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+import 'package:provider/provider.dart';
 
 part 'confirm.g.dart';
 
+class CodeData {
+  String code = "";
+}
+
 @widget
-Widget confirm(BuildContext context, {ValueNotifier<bool> page}) {
-  // final key = use;
-  final mobileNumber = "+989121161998";
+Widget confirm(BuildContext context) {
+  final auth = Provider.of<Auth>(context);
+  final formKey = useMemoized(()=>GlobalKey<FormState>());
+  final data = useMemoized(() => CodeData());
+  final error = useState("");
 
   return Container(
     padding: const EdgeInsets.only(left: 20, right: 20),
     child: Form(
-      // key: form,
+      key: formKey,
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            SizedBox.fromSize(size: Size.fromHeight(100)),
+            SizedBox(height: 100),
             Image.asset('assets/images/car.png', height: 100,),
             Text(
               translate('login.confirm_title'),
@@ -30,7 +40,7 @@ Widget confirm(BuildContext context, {ValueNotifier<bool> page}) {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox.fromSize(size: Size.fromHeight(16)),
+            SizedBox(height: 16),
             Text(
               translate('login.confirm_statement'),
               textAlign: TextAlign.center,
@@ -38,14 +48,14 @@ Widget confirm(BuildContext context, {ValueNotifier<bool> page}) {
                 height: 1.8,
               ),
             ),
-            SizedBox.fromSize(size: Size.fromHeight(48)),
+            SizedBox(height: 48),
             Text(
               translate('login.resend_code_after'),
               textAlign: TextAlign.center,
             ),
-            SizedBox.fromSize(size: Size.fromHeight(8)),
-            Counter(),
-            SizedBox.fromSize(size: Size.fromHeight(24)),
+            SizedBox(height: 8),
+            Counter(time: 180),
+            SizedBox(height: 24),
             // TextFormField(
             //   textDirection: TextDirection.ltr,
             //   decoration: InputDecoration(
@@ -75,25 +85,32 @@ Widget confirm(BuildContext context, {ValueNotifier<bool> page}) {
                   fieldHeight: 40,
                   fieldWidth: 30,
                   onChanged: (value) {
-                  //   setState(() {
-                  //     currentText = value;
-                    // });
+                    data.code = value?.trim() ?? "";
                   },
                 ),
               ),
             ),
-            SizedBox.fromSize(size: Size.fromHeight(16)),
+            SizedBox(height: 16),
+            if(error.value.length != 0)
+              Text(
+                error.value,
+                style: TextStyle(
+                  color: Colors.red,
+                ),
+              ),
+            if(error.value.length != 0)
+              SizedBox(height: 16),
             Text(
-              translate('login.mobile_alert', args: {"mobile": mobileNumber}),
+              translate('login.mobile_alert', args: {"mobile": auth.mobile}),
               textAlign: TextAlign.center,
             ),
-            SizedBox.fromSize(size: Size.fromHeight(8)),
+            SizedBox(height: 8),
             Align(
               child: Container(
                 height: 48,
                 child: GestureDetector(
                   onTap: (){
-                    page.value = false;
+                    auth.relogin();
                   },
                   child: Text(
                     translate('login.change_number'),
@@ -105,14 +122,23 @@ Widget confirm(BuildContext context, {ValueNotifier<bool> page}) {
                 ),
               ),
             ),
-            SizedBox.fromSize(size: Size.fromHeight(0)),
+            SizedBox(height: 0),
             RaisedButton(
-              onPressed: (){},
+              onPressed: () async{
+                if(data.code.length!=4){
+                  error.value = translate('login.code_should_be_4');
+                }else{
+                  final result = await auth.verify(data.code);
+                  if(!result){
+                    error.value = translate('login.failed_to_verify');
+                  }
+                }
+              },
               child: Text(translate('login.confirm')),
               color: Colors.blue,
               textColor: Colors.white,
             ),
-            SizedBox.fromSize(size: Size.fromHeight(50)),
+            SizedBox(height: 50),
           ],
         ),
       ),
@@ -121,13 +147,28 @@ Widget confirm(BuildContext context, {ValueNotifier<bool> page}) {
 }
 
 @widget
-Widget counter(BuildContext context) {
-  final seconds = useState(0);
-  final minutes = useState(3);
+Widget counter(BuildContext context, {@required int time}) {
+  final minutes = useState((time / 60).floor());
+  final seconds = useState((time % 60));
 
+  useEffect((){
+    final timer = Timer.periodic(new Duration(seconds: 1), (timer) {
+      if(seconds.value == 0){
+        if(minutes.value==0){
+          timer.cancel();
+        }else{
+          minutes.value--;
+          seconds.value=59;
+        }
+      }else{
+        seconds.value--;
+      }
+    });
+    return (){timer.cancel();};
+  }, []);
   
   return Text(
-    '01:49',
+    '${minutes.value}:${seconds.value}',
     textAlign: TextAlign.center,
   );
 }
