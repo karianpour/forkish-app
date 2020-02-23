@@ -28,8 +28,8 @@ Widget taxiQuery(BuildContext context) {
       MapArea(state: state),
       if(state.getPickup()==null || state.getDestination()==null) CenterMarker(state: state),
       if(state.getRide()==null) AddressPanel(state: state),
-      if(state.getPickup()==null) PickupAlert(state: state),
-      if(state.getPickup()!=null && state.getDestination()==null) DestinationAlert(state: state),
+      // if(state.getPickup()==null) PickupAlert(state: state),
+      // if(state.getPickup()!=null && state.getDestination()==null) DestinationAlert(state: state),
       if(state.getPickup()!=null && state.getDestination()!=null && !state.getRequestingRide() && state.getRide()==null) OfferSelection(state: state),
       if(state.getRequestingRide()) RideQueryPanel(state: state,),
       if(state.getRide()!=null) RidePanel(state: state),
@@ -766,29 +766,37 @@ class AddressPanel extends StatelessWidget {
         ),
         child: Column(
           children: <Widget>[
-            if(state.getPickup()==null) Row(
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.all(14.0),
-                  child: SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: Image.asset('assets/map/marker.png'),
+            if(state.getPickup()==null) GestureDetector(
+                onTap: () async{
+                  final selected = await showSearch(context: context, delegate: AddressSearch(translate('taxi_query.pickup.label'), lat: this.state.controller.center.latitude, lng: this.state.controller.center.longitude));
+                  if(selected != null){
+                    state.controller.move(LatLng(selected.lat, selected.lng), 17);
+                  }
+                },
+                child: Row(
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(14.0),
+                    child: SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: Image.asset('assets/map/marker.png'),
+                    ),
                   ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 14.0, bottom: 14.0),
-                    child: state.getRequestingLocation() ? Center(child: SizedBox(height: 21, width: 21, child: CircularProgressIndicator())) : Text(
-                      "${state.getLocation()?.name ?? ''}",
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 14,
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 14.0, bottom: 14.0),
+                      child: state.getRequestingLocation() ? Center(child: SizedBox(height: 21, width: 21, child: CircularProgressIndicator())) : Text(
+                        "${state.getLocation()?.name ?? ''}",
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 14,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             if(state.getPickup()!=null) Row(
               children: <Widget>[
@@ -822,29 +830,37 @@ class AddressPanel extends StatelessWidget {
                 ),
               ],
             ),
-            if(state.getPickup()!=null && state.getDestination()==null) Row(
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.all(14.0),
-                  child: SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: Image.asset('assets/map/marker.png'),
+            if(state.getPickup()!=null && state.getDestination()==null) GestureDetector(
+                onTap: () async{
+                  final selected = await showSearch(context: context, delegate: AddressSearch(translate('taxi_query.destination.label'), lat: this.state.controller.center.latitude, lng: this.state.controller.center.longitude));
+                  if(selected != null){
+                    state.controller.move(LatLng(selected.lat, selected.lng), 17);
+                  }
+                },
+                child: Row(
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(14.0),
+                    child: SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: Image.asset('assets/map/marker.png'),
+                    ),
                   ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 14.0, bottom: 14.0),
-                    child: state.getRequestingLocation() ? Center(child: SizedBox(height: 21, width: 21, child: CircularProgressIndicator())) : Text(
-                      "${state.getLocation()?.name ?? ''}",
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 14,
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 14.0, bottom: 14.0),
+                      child: state.getRequestingLocation() ? Center(child: SizedBox(height: 21, width: 21, child: CircularProgressIndicator())) : Text(
+                        "${state.getLocation()?.name ?? ''}",
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 14,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             if(state.getDestination()!=null) Row(
               children: <Widget>[

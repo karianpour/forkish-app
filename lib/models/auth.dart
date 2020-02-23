@@ -4,6 +4,9 @@ import 'package:flutter/foundation.dart';
 import 'package:for_kish/helpers/types.dart';
 import 'package:for_kish/api/auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
+
+var uuid = Uuid();
 
 const String _authKey = "__auth__";
 
@@ -45,6 +48,28 @@ class Auth with ChangeNotifier {
         this.passenger = passenger;
         this.waitingForCode = true;
         this.loggedin = true;
+        notifyListeners();
+        save();
+        return true;
+      }else{
+        return false;
+      }
+    }catch(err){
+      print(err);
+      return false;
+    }
+  }
+
+  Future<bool> signup({
+    @required String firstName,
+    @required String lastName,
+    @required String mobile,
+  }) async{
+    this.mobile = mobile;
+    try{
+      final result = await requestSigup(uuid.v4(), firstName, lastName, mobile);
+      if(result){
+        waitingForCode = true;
         notifyListeners();
         save();
         return true;

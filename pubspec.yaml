@@ -38,6 +38,7 @@ dependencies:
   flutter_map: ^0.8.2
   http: ^0.12.0+4
   pin_code_fields: ^2.3.0+3
+  uuid: ^2.0.4
   
 
 dev_dependencies:

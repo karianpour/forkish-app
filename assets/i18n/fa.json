@@ -8,13 +8,15 @@
   },
   "menu": {
     "logout": "خروج",
-    "taxi_query": "جستجوی تاکسی"
+    "profile": "پروفایل"
   },
   "login": {
     "welcome": "خوش آمدید",
     "welcome_desc": "جهت استفاده از اپلیکیشن 4Kish وارد شوید",
     "mobile": "شماره تلفن همراه",
     "login": "ورود",
+    "are_you_a_new_user": "کاربر جدید هستید؟",
+    "signup": "ثبت نام کنید",
     "confirm_title": "لطفا کد تایید را وارد نمایید",
     "confirm_statement": "به شماره شما یک کد تایید ۴ رقمی ارسال می‌گردد",
     "resend_code_after": "ارسال مجدد پس از",
@@ -25,6 +27,19 @@
     "mobile_is_needed": "شماره تلفن همراه الزامی است",
     "code_should_be_4": "کد باید ۴ رقم باشد",
     "failed_to_verify": "تایید کد شکست خورد"
+  },
+  "signup": {
+    "welcome": "خوش آمدید",
+    "welcome_desc": "در 4Kish ثبت نام نمایید",
+    "firstName": "نام",
+    "lastName": "نام خانوادگی",
+    "mobile": "شماره تلفن همراه",
+    "signup": "ثبت نام",
+    "save": "تایید",
+    "already_a_user": "آیا قبلا عضو شده‌اید؟",
+    "login_now": "وارد شوید",
+    "mandatory": "اجباری",
+    "failed": "ثبت نام شکست خورد"
   },
   "taxi_query": {
     "pickup": {

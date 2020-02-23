@@ -8,13 +8,15 @@
   },
   "menu": {
     "logout": "Logout",
-    "taxi_query": "Taxi Query"
+    "profile": "Profile"
   },
   "login": {
     "welcome": "Welcome back!",
     "welcome_desc": "Login to continue using 4Kish",
     "mobile": "Mobile",
     "login": "Login",
+    "are_you_a_new_user": "New User?",
+    "signup": "Signup for a new account",
     "confirm_title": "Please Enter Confirmation Code",
     "confirm_statement": "You Will Receive a Four Digits Confirmation Code Within 3 Minutes.",
     "resend_code_after": "Resend Code After",
@@ -25,6 +27,19 @@
     "mobile_is_needed": "mobile number is mandatory",
     "code_should_be_4": "code should be 4 digits",
     "failed_to_verify": "failed to verify the code"
+  },
+  "signup": {
+    "welcome": "Welcome aboard!",
+    "welcome_desc": "Signup with 4Kish in simple steps",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "mobile": "Mobile",
+    "signup": "Signup",
+    "save": "Save",
+    "already_a_user": "Already a User?",
+    "login_now": "Login now",
+    "mandatory": "Mandatory",
+    "failed": "Signup failed"
   },
   "taxi_query": {
     "pickup": {

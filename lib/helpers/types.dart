@@ -1,17 +1,20 @@
 class Passenger {
+  String id;
   String firstName;
   String lastName;
   String mobile;
 
-  Passenger({this.firstName, this.lastName, this.mobile});
+  Passenger({this.id, this.firstName, this.lastName, this.mobile});
 
   Passenger.fromJson(Map<String, dynamic> json)
-      : firstName = json['firstName'],
+      : id = json['id'],
+        firstName = json['firstName'],
         lastName = json['lastName'],
         mobile = json['mobile'];
 
   Map<String, dynamic> toJson() =>
     {
+      'id': id,
       'firstName': firstName,
       'lastName': lastName,
       'mobile': mobile,

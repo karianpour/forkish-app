@@ -80,6 +80,33 @@ Widget login(BuildContext context) {
             ),
             SizedBox(height: 20),
             Align(
+              child: Container(
+                height: 48,
+                child: Row(
+                  children: <Widget>[
+                    Text(
+                      translate('login.are_you_a_new_user'),
+                      // textAlign: TextAlignVertical.bottom,
+                    ),
+                    SizedBox(width: 8),
+                    GestureDetector(
+                      onTap: (){
+                        Navigator.pushNamed(context, '/signup');
+                      },
+                      child: Text(
+                        translate('login.signup'),
+                        // textAlign: TextAlignVertical.bottom,
+                        style: TextStyle(
+                          color: Colors.blue,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: 20),
+            Align(
               alignment: AlignmentDirectional.centerEnd,
               child: Container(
                 height: 48,
