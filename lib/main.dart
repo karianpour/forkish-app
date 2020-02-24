@@ -55,6 +55,10 @@ Widget myApp(BuildContext context) {
         theme: ThemeData(
           fontFamily: 'Nika',
           // primarySwatch: Colors.blue,
+          buttonTheme: ButtonThemeData(
+            buttonColor: Colors.blue,
+            textTheme: ButtonTextTheme.primary,
+          ),
         ),
         localizationsDelegates: [
           // ... app-specific localization delegate[s] here

@@ -135,8 +135,6 @@ Widget confirm(BuildContext context) {
                 }
               },
               child: Text(translate('login.confirm')),
-              color: Colors.blue,
-              textColor: Colors.white,
             ),
             SizedBox(height: 50),
           ],

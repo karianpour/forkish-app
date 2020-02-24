@@ -108,7 +108,7 @@ class RidePanel extends StatelessWidget {
                     // crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
                       Expanded(
-                        child: buildDriver(),
+                        child: buildDriver(context),
                       ),
                       buildActions(),
                     ],
@@ -122,13 +122,7 @@ class RidePanel extends StatelessWidget {
           Container(
             width: double.infinity,
             child: RaisedButton(
-              child: Text(
-                translate('taxi_query.cancel_ride'),
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              ),
-              color: Colors.blue,
+              child: Text(translate('taxi_query.cancel_ride')),
               onPressed: (){},
               onLongPress: (){
                 state.cancelRide();
@@ -148,18 +142,11 @@ class RidePanel extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           RaisedButton(
-            child: Icon(Icons.call, color: Colors.white,),
-            // child: Text(
-            //   translate('taxi_query.callDriver'),
-            //   style: TextStyle(
-            //     color: Colors.white,
-            //   ),
-            // ),
-            color: Colors.blue,
+            child: Icon(Icons.call),
             onPressed: () async {
-              print('call ${state.getRide().driver.phone}');
-              if(await canLaunch("tel:${state.getRide().driver.phone}")){
-                var r = await launch("tel:${state.getRide().driver.phone}");
+              print('call ${state.getRide().driver.mobile}');
+              if(await canLaunch("tel:${state.getRide().driver.mobile}")){
+                var r = await launch("tel:${state.getRide().driver.mobile}");
                 print("result : $r");
               }else{
                 print('cant lunch');
@@ -167,14 +154,7 @@ class RidePanel extends StatelessWidget {
             },
           ),
           RaisedButton(
-            child: Icon(Icons.more, color: Colors.white,),
-            // child: Text(
-            //   translate('taxi_query.options'),
-            //   style: TextStyle(
-            //     color: Colors.white,
-            //   ),
-            // ),
-            color: Colors.blue,
+            child: Icon(Icons.more),
             onPressed: (){
               print('call');
             },
@@ -184,7 +164,8 @@ class RidePanel extends StatelessWidget {
     );
   }
 
-  Column buildDriver() {
+  Column buildDriver(BuildContext context) {
+    final locale = LocalizedApp.of(context).delegate.currentLocale.languageCode;
     final score = state.getRide().driver.score;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -203,7 +184,10 @@ class RidePanel extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text(state.getRide().driver.name),
+                  Text(
+                    (locale == 'fa' || locale == 'ar') ? '${state.getRide().driver.firstName} ${state.getRide().driver.lastName}' 
+                      : '${state.getRide().driver.firstNameEn} ${state.getRide().driver.lastNameEn}'
+                  ),
                   Padding(
                     padding: const EdgeInsets.only(top: 4.0),
                     child: Row(
@@ -376,13 +360,7 @@ class RideQueryPanel extends StatelessWidget {
           Container(
             width: double.infinity,
             child: RaisedButton(
-              child: Text(
-                translate('taxi_query.cancel_request'),
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              ),
-              color: Colors.blue,
+              child: Text(translate('taxi_query.cancel_request')),
               onPressed: (){},
               onLongPress: (){
                 state.cancelRide();
@@ -447,13 +425,7 @@ class OfferSelection extends StatelessWidget {
             Container(
               width: double.infinity,
               child: RaisedButton(
-                child: Text(
-                  translate('taxi_query.request'),
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
-                ),
-                color: Colors.blue,
+                child: Text(translate('taxi_query.request')),
                 onPressed: state.getSelectedOffer() == null ? null : (){
                   state.setRequestingRide(true);
                 },

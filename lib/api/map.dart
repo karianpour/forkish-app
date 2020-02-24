@@ -152,7 +152,7 @@ Future<RideAndApproach> fetchRide(Location pickup, Location destination, Offer s
   // throw("error test");
   return RideAndApproach(
     ride: Ride(
-      driver: Driver(name: "اصغر طرقه", phone: "+989121161998", photoUrl: "", score: 4),
+      driver: Driver(firstName: 'کیوان', lastName: 'آرین‌پور', firstNameEn: 'Kayvan', lastNameEn: 'Arianpour', mobile: "+989121161998", photoUrl: "", score: 4),
       vehicle: Vehicle(vehicleType: VehicleType.sedan, classNumber: "22", mainNumber: "12345"),
       paymentType: PaymentType.cash,
       price: 25000,

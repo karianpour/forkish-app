@@ -125,8 +125,6 @@ Widget signup(BuildContext context) {
                   }
                 },
                 child: Text(translate('signup.signup')),
-                color: Colors.blue,
-                textColor: Colors.white,
               ),
               SizedBox(height: 20),
               Align(

@@ -121,8 +121,6 @@ Widget profile(BuildContext context) {
                   }
                 },
                 child: Text(translate('signup.save')),
-                color: Colors.blue,
-                textColor: Colors.white,
               ),
               SizedBox(height: 20),
             ],

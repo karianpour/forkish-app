@@ -75,8 +75,6 @@ Widget login(BuildContext context) {
                 }
               },
               child: Text(translate('login.login')),
-              color: Colors.blue,
-              textColor: Colors.white,
             ),
             SizedBox(height: 20),
             Align(
