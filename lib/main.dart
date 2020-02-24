@@ -145,9 +145,21 @@ Widget appDrawer(BuildContext context) {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text('${auth.passenger?.firstName ?? ''} ${auth.passenger?.lastName ?? ''}'),
+              Text(
+                '${auth.passenger?.firstName ?? ''} ${auth.passenger?.lastName ?? ''}',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
               SizedBox(height: 10),
-              Text('${mapNumber(context, auth.passenger?.mobile ?? '')}'),
+              Text(
+                '${mapNumber(context, auth.passenger?.mobile ?? '')}',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                ),
+              ),
             ],
           ),
           decoration: BoxDecoration(
