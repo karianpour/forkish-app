@@ -33,6 +33,7 @@ Widget login(BuildContext context) {
           children: <Widget>[
             SizedBox(height: 100),
             Image.asset('assets/images/car.png', height: 100,),
+            SizedBox(height: 30),
             Text(
               translate('login.welcome'),
               textAlign: TextAlign.center,

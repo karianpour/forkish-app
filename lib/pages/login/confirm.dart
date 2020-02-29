@@ -31,7 +31,8 @@ Widget confirm(BuildContext context) {
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             SizedBox(height: 100),
-            Image.asset('assets/images/car.png', height: 100,),
+            Image.asset('assets/images/crossover.png', height: 100,),
+            SizedBox(height: 30),
             Text(
               translate('login.confirm_title'),
               textAlign: TextAlign.center,

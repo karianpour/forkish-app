@@ -5,6 +5,13 @@
 
 flutter pub run build_runner watch
 
+# To Install packages
+flutter pub get
+
+# To clear packages
+flutter clean
+flutter pub cache repair
+
 # Release
 
 flutter build apk --split-per-abi --release

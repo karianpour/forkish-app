@@ -128,15 +128,22 @@ class MapControllerHookState extends HookState<MapControllerHookState, _MapContr
     if(getPickup()==null){
       setPickup(getLocation());
       if(getDestination()==null){
-        LatLng newLocation = _d.offset(LatLng(getLocation().lat, getLocation().lng), 100, 270);
+        LatLng newLocation = _d.offset(LatLng(getLocation().lat, getLocation().lng), 100, 90);
         _controller.move(newLocation, _controller.zoom);
       }
     }else if(getDestination()==null){
       setDestination(getLocation());
       if(getPickup()==null){
-        LatLng newLocation = _d.offset(LatLng(getLocation().lat, getLocation().lng), 100, 270);
+        LatLng newLocation = _d.offset(LatLng(getLocation().lat, getLocation().lng), 100, 90);
         _controller.move(newLocation, _controller.zoom);
       }
+    }
+  }
+
+  void moveToMyLocation() {
+    if(_currentLocation!=null){
+      LatLng newLocation = LatLng(_currentLocation.latitude, _currentLocation.longitude);
+      _controller.move(newLocation, _controller.zoom);
     }
   }
 

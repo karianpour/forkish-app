@@ -26,6 +26,7 @@ Widget taxiQuery(BuildContext context) {
   return Stack(
     children: <Widget>[
       MapArea(state: state),
+      HereMarker(state: state),
       if(state.getPickup()==null || state.getDestination()==null) CenterMarker(state: state),
       if(state.getRide()==null) AddressPanel(state: state),
       // if(state.getPickup()==null) PickupAlert(state: state),
@@ -57,13 +58,45 @@ class CenterMarker extends StatelessWidget {
           height: 80,
           child: Align(
             child: Container(
-              foregroundDecoration: !state.getRequestingLocation() ? null : BoxDecoration(
-                color: Colors.grey,
-                backgroundBlendMode: BlendMode.saturation,
+              child: Image.asset(
+                'assets/map/marker.png',
+                height: 48,
+                color: state.getRequestingLocation() ? Colors.grey : Colors.blue,
               ),
-              child: Image.asset('assets/map/marker.png')
             ),
             alignment: Alignment.topCenter,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class HereMarker extends StatelessWidget {
+  const HereMarker({
+    Key key,
+    @required this.state,
+  }) : super(key: key);
+
+  final MapControllerHookState state;
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      bottom: 40,
+      left: 20,
+      right: 20,
+      child: Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: GestureDetector(
+          onTap: (){
+            state.moveToMyLocation();
+          },
+          child: SizedBox(
+            height: 28,
+            child: Container(
+              child: Image.asset('assets/map/here.png')
+            ),
           ),
         ),
       ),
@@ -142,6 +175,7 @@ class RidePanel extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           RaisedButton(
+            padding: EdgeInsets.all(0),
             child: Icon(Icons.call),
             onPressed: () async {
               print('call ${state.getRide().driver.mobile}');
@@ -154,6 +188,7 @@ class RidePanel extends StatelessWidget {
             },
           ),
           RaisedButton(
+            padding: EdgeInsets.all(0),
             child: Icon(Icons.more),
             onPressed: (){
               print('call');
@@ -752,7 +787,7 @@ class AddressPanel extends StatelessWidget {
                     child: SizedBox(
                       height: 20,
                       width: 20,
-                      child: Image.asset('assets/map/marker.png'),
+                      child: Image.asset('assets/map/pickup.png', color: Colors.blue),
                     ),
                   ),
                   Expanded(
@@ -816,7 +851,7 @@ class AddressPanel extends StatelessWidget {
                     child: SizedBox(
                       height: 20,
                       width: 20,
-                      child: Image.asset('assets/map/marker.png'),
+                      child: Image.asset('assets/map/destination.png', color: Colors.blue),
                     ),
                   ),
                   Expanded(
