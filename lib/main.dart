@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:for_kish/helpers/number.dart';
 import 'package:for_kish/models/auth.dart';
+import 'package:for_kish/models/taxi.dart';
 import 'package:for_kish/pages/login/confirm.dart';
 import 'package:for_kish/pages/login/login.dart';
 import 'package:for_kish/pages/login/signup.dart';
@@ -47,8 +48,22 @@ Widget myApp(BuildContext context) {
   
   return LocalizationProvider(
     state: LocalizationProvider.of(context).state,
-    child: ChangeNotifierProvider(
-      create: (_) => Auth(),
+    child: MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => Auth(),
+        ),
+        ChangeNotifierProxyProvider<Auth, Taxi>(
+          create: (_) => Taxi(),
+          update: (_, auth, taxi) {
+            print('updated');
+            if(auth.passenger?.id != null){
+              taxi.load(auth.passenger.id);
+            }
+            return taxi;
+          },
+        ),
+      ],
       child: MaterialApp(
         // debugShowCheckedModeBanner: false,
         // theme: ThemeData.dark(),
@@ -146,7 +161,7 @@ Widget appDrawer(BuildContext context) {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text(
-                '${auth.passenger?.firstName ?? ''} ${auth.passenger?.lastName ?? ''}',
+                '${auth.passenger?.firstname ?? ''} ${auth.passenger?.lastname ?? ''}',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 24,

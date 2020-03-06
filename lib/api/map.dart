@@ -21,7 +21,7 @@ Future<Location> fetchLocation(double lat, double lng) async {
     var name = jsonResponse['name'] as String;
     if(name==null || name.length == 0) name = jsonResponse['primary'];
     if(name==null || name.length == 0) name = jsonResponse['city'];
-    return Location(lat: lat, lng: lng, name: name, location: jsonResponse['address']);
+    return Location(lat: lat, lng: lng, name: name, address: jsonResponse['address']);
   } else {
     return null;
   }
@@ -90,7 +90,7 @@ Future<LocationList> fetchAddress(String query, double lat, double lng) async{
     var jsonResponse = json.decode(response.body);
     List<Location> locations = jsonResponse['value'].map<Location>(
       (dynamic i) =>
-        Location(lat: i["geom"]["coordinates"][1], lng: i["geom"]["coordinates"][0], name: i["title"], location: i['district'] ?? i['county'] ?? "")
+        Location(lat: i["geom"]["coordinates"][1], lng: i["geom"]["coordinates"][0], name: i["title"], address: i['district'] ?? i['county'] ?? "")
     ).toList();
     return LocationList(locations: locations);
   } else {
@@ -99,14 +99,6 @@ Future<LocationList> fetchAddress(String query, double lat, double lng) async{
 }
 
 // curl -X GET "https://map.ir/routes/route/v1/driving/51.421047%2C35.732936%3B51.422185%2C35.731821?alternatives=false&steps=false" -H "accept: application/json" -H "x-api-key: api_key"
-class MapRoute {
-  List<LatLng> points;
-  double distance;
-  double duration;
-
-  MapRoute({this.distance, this.duration, this.points});
-}
-
 Future<MapRoute> fetchRoute(Location pickup, Location destination) async {
   var url = 'https://map.ir/routes/route/v1/driving/${pickup.lng}%2C${pickup.lat}%3B${destination.lng}%2C${destination.lat}?alternatives=false&steps=true&overview=simplified';
 
@@ -135,28 +127,4 @@ Future<MapRoute> fetchRoute(Location pickup, Location destination) async {
     }
   }
   return null;
-}
-
-Future<List<Offer>> fetchOffers(Location pickup, Location destination) async{
-  await Future.delayed(Duration(milliseconds: 2000));
-  // throw("error test");
-  return <Offer> [
-    Offer(vehicleType: VehicleType.sedan, price: 25000, enabled: true),
-    Offer(vehicleType: VehicleType.hatchback, price: 15000, enabled: false),
-    Offer(vehicleType: VehicleType.van, price: 55000, enabled: false),
-  ];
-}
-
-Future<RideAndApproach> fetchRide(Location pickup, Location destination, Offer selectedOffer) async{
-  await Future.delayed(Duration(seconds: 10));
-  // throw("error test");
-  return RideAndApproach(
-    ride: Ride(
-      driver: Driver(firstName: 'کیوان', lastName: 'آرین‌پور', firstNameEn: 'Kayvan', lastNameEn: 'Arianpour', mobile: "+989121161998", photoUrl: "", score: 4),
-      vehicle: Vehicle(vehicleType: VehicleType.sedan, classNumber: "22", mainNumber: "12345"),
-      paymentType: PaymentType.cash,
-      price: 25000,
-    ),
-    rideApproach: RideApproach(distance: 5700, eta: 560, location: Location(lat: 26.564119755213248, lng: 53.98794763507246), bearing: 55, rideReady: false),
-  );
 }

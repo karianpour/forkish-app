@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:for_kish/api/taxi.dart';
 import 'package:for_kish/helpers/types.dart';
 import 'package:for_kish/api/auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,6 +17,7 @@ class Auth with ChangeNotifier {
   bool waitingForCode = false;
   String mobile;
   Passenger passenger;
+  String token;
 
   Auth(){
     load();
@@ -43,9 +45,10 @@ class Auth with ChangeNotifier {
 
   Future<bool> verify(String code) async{
     try{
-      Passenger passenger = await verifyCode(this.mobile, code);
-      if(passenger != null){
-        this.passenger = passenger;
+      VerificationResponse response = await verifyCode(this.mobile, code);
+      if(response != null){
+        this.passenger = response.passenger;
+        this.token = response.token;
         this.waitingForCode = true;
         this.loggedin = true;
         notifyListeners();
@@ -61,13 +64,13 @@ class Auth with ChangeNotifier {
   }
 
   Future<bool> signup({
-    @required String firstName,
-    @required String lastName,
+    @required String firstname,
+    @required String lastname,
     @required String mobile,
   }) async{
     this.mobile = mobile;
     try{
-      final result = await requestSigup(uuid.v4(), firstName, lastName, mobile);
+      final result = await requestSigup(uuid.v4(), firstname, lastname, mobile);
       if(result){
         waitingForCode = true;
         notifyListeners();
@@ -93,6 +96,7 @@ class Auth with ChangeNotifier {
         this.waitingForCode = map['waitingForCode'];
         this.mobile = map['mobile'];
         this.passenger = map['passenger']==null ? null : Passenger.fromJson(map['passenger']);
+        this.token = map['token'];
       }
     }catch(err){
       print(err);
@@ -100,8 +104,10 @@ class Auth with ChangeNotifier {
       this.waitingForCode = false;
       this.mobile = null;
       this.passenger = null;
+      this.token = null;
     }
     this.loaded = true;
+    setWebSocketToken(this.token);
     notifyListeners();
   }
 
@@ -117,5 +123,6 @@ class Auth with ChangeNotifier {
       'waitingForCode': waitingForCode,
       'mobile': mobile,
       'passenger': passenger?.toJson(),
+      'token': token,
     };
 }

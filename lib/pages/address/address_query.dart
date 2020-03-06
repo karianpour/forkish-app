@@ -70,7 +70,7 @@ class AddressSearch extends SearchDelegate<Location> {
                           title: Text(result.name,
                               style: TextStyle(
                                   fontWeight: FontWeight.w700, fontSize: 18)),
-                          subtitle: Text(result.location),
+                          subtitle: Text(result.address),
                           onTap: (){
                             close(context, result);
                           },

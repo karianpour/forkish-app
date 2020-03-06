@@ -9,8 +9,8 @@ import 'package:provider/provider.dart';
 part 'profile.g.dart';
 
 class LoginData {
-  String firstName = "";
-  String lastName = "";
+  String firstname = "";
+  String lastname = "";
   String mobile = "";
 }
 
@@ -20,8 +20,8 @@ Widget profile(BuildContext context) {
   final formKey = useMemoized(()=>GlobalKey<FormState>());
   final data = useMemoized(() {
     var data = LoginData();
-    data.firstName = auth.passenger.firstName;
-    data.lastName = auth.passenger.lastName;
+    data.firstname = auth.passenger.firstname;
+    data.lastname = auth.passenger.lastname;
     data.mobile = auth.passenger.mobile;
     return data;
   });
@@ -57,13 +57,13 @@ Widget profile(BuildContext context) {
               SizedBox(height: 100),
               TextFormField(
                 decoration: InputDecoration(
-                  labelText: translate('signup.firstName'),
+                  labelText: translate('signup.firstname'),
                   prefixIcon: Icon(Icons.person),
                 ),
-                initialValue: data.firstName,
+                initialValue: data.firstname,
                 keyboardType: TextInputType.text,
                 onChanged: (value){
-                  data.firstName = value;
+                  data.firstname = value;
                 },
                 validator: (value){
                   if(value=='') return translate('signup.mandatory');
@@ -73,13 +73,13 @@ Widget profile(BuildContext context) {
               SizedBox(height: 16),
               TextFormField(
                 decoration: InputDecoration(
-                  labelText: translate('signup.lastName'),
+                  labelText: translate('signup.lastname'),
                   prefixIcon: Icon(Icons.person),
                 ),
-                initialValue: data.lastName,
+                initialValue: data.lastname,
                 keyboardType: TextInputType.text,
                 onChanged: (value){
-                  data.lastName = value;
+                  data.lastname = value;
                 },
                 validator: (value){
                   if(value=='') return translate('signup.mandatory');
@@ -109,8 +109,8 @@ Widget profile(BuildContext context) {
                 onPressed: () async {
                   if(formKey.currentState.validate()){
                     // final result = await auth.signup(
-                    //   firstName: data.firstName,
-                    //   lastName: data.lastName,
+                    //   firstname: data.firstname,
+                    //   lastname: data.lastname,
                     //   mobile: data.mobile,
                     // );
                     // if(result){

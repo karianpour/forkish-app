@@ -1,14 +1,17 @@
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:for_kish/models/taxi.dart';
 import 'package:latlong/latlong.dart';
 import 'package:for_kish/helpers/number.dart';
 import 'package:for_kish/helpers/types.dart';
 import 'package:for_kish/pages/address/address_query.dart';
 import 'package:functional_widget_annotation/functional_widget_annotation.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../models/map_hook.dart';
@@ -21,19 +24,22 @@ const leafLetAccessToken = "pk.eyJ1Ijoia2FyaWFucG91ciIsImEiOiJjazZnY21iMW4wMnV0M
 
 @widget
 Widget taxiQuery(BuildContext context) {
-  final state = useMapControllerHook();
+  final state = useMap();
+  final taxi = Provider.of<Taxi>(context);
+  taxi.setMapController(state);
 
   return Stack(
     children: <Widget>[
       MapArea(state: state),
       HereMarker(state: state),
-      if(state.getPickup()==null || state.getDestination()==null) CenterMarker(state: state),
-      if(state.getRide()==null) AddressPanel(state: state),
-      // if(state.getPickup()==null) PickupAlert(state: state),
-      // if(state.getPickup()!=null && state.getDestination()==null) DestinationAlert(state: state),
-      if(state.getPickup()!=null && state.getDestination()!=null && !state.getRequestingRide() && state.getRide()==null) OfferSelection(state: state),
-      if(state.getRequestingRide()) RideQueryPanel(state: state,),
-      if(state.getRide()!=null) RidePanel(state: state),
+      if(!taxi.loaded) Center(child: CircularProgressIndicator(),),
+      if(taxi.loaded && taxi.getPickup()==null || taxi.getDestination()==null) CenterMarker(state: state),
+      if(taxi.loaded && taxi.getRide()==null) AddressPanel(state: state),
+      // if(taxi.loaded && taxi.getPickup()==null) PickupAlert(state: state),
+      // if(taxi.loaded && taxi.getPickup()!=null && taxi.getDestination()==null) DestinationAlert(state: state),
+      if(taxi.loaded && taxi.getPickup()!=null && taxi.getDestination()!=null && !taxi.getRequestingRide() && taxi.getRide()==null) OfferSelection(state: state),
+      if(taxi.loaded && taxi.getRequestingRide()) RideQueryPanel(state: state,),
+      if(taxi.loaded && taxi.getRide()!=null) RidePanel(state: state),
     ],
   );
 }
@@ -44,15 +50,17 @@ class CenterMarker extends StatelessWidget {
     @required this.state,
   }) : super(key: key);
 
-  final MapControllerHookState state;
+  final MapState state;
 
   @override
   Widget build(BuildContext context) {
+    final taxi = Provider.of<Taxi>(context);
+
     return Center(
       child: GestureDetector(
         onTap: (){
           if(!state.getRequestingLocation())
-            state.confirmed();
+            taxi.confirmed();
         },
         child: SizedBox(
           height: 80,
@@ -78,7 +86,7 @@ class HereMarker extends StatelessWidget {
     @required this.state,
   }) : super(key: key);
 
-  final MapControllerHookState state;
+  final MapState state;
 
   @override
   Widget build(BuildContext context) {
@@ -110,10 +118,12 @@ class RidePanel extends StatelessWidget {
     @required this.state,
   }) : super(key: key);
 
-  final MapControllerHookState state;
+  final MapState state;
 
   @override
   Widget build(BuildContext context) {
+    final taxi = Provider.of<Taxi>(context);
+
     return Positioned(
       bottom: 40,
       left: 20,
@@ -121,6 +131,37 @@ class RidePanel extends StatelessWidget {
       // height: 250,
       child: Column(
         children: <Widget>[
+          if(taxi.getRideApproach().rideReady && taxi.getRideProgress().onboard != true) Padding(
+            padding: const EdgeInsets.only(bottom: 20),
+            child: Container(
+              width: double.infinity,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  Container(
+                    padding: const EdgeInsets.only(top: 8, bottom: 8, left: 8, right: 8),
+                    decoration: BoxDecoration(
+                      color: Color.fromRGBO(255, 255, 255, 1),
+                      borderRadius: BorderRadius.circular(4),
+                      boxShadow: [BoxShadow(
+                        color: Colors.grey,
+                        blurRadius: 5.0,
+                        spreadRadius: 2.0,
+                        offset: Offset(5, 5),
+                      )]
+                    ),
+                    child: Text(translate('taxi_query.ride_ready')),
+                  ),
+                  if(taxi.getRideApproach().passengerReady != true) RaisedButton(
+                    child: Text(translate('taxi_query.i_am_commig')),
+                    onPressed: (){
+                      taxi.confirmRide();
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
           Container(
             decoration: BoxDecoration(
               color: Color.fromRGBO(255, 255, 255, 1),
@@ -143,7 +184,7 @@ class RidePanel extends StatelessWidget {
                       Expanded(
                         child: buildDriver(context),
                       ),
-                      buildActions(),
+                      buildActions(taxi),
                     ],
                   ),
                   buildRideData(context),
@@ -158,7 +199,7 @@ class RidePanel extends StatelessWidget {
               child: Text(translate('taxi_query.cancel_ride')),
               onPressed: (){},
               onLongPress: (){
-                state.cancelRide();
+                taxi.cancelRide();
               },
             ),
           ),
@@ -167,7 +208,7 @@ class RidePanel extends StatelessWidget {
     );
   }
 
-  Container buildActions() {
+  Container buildActions(Taxi taxi) {
     return Container(
       padding: EdgeInsets.all(8.0),
       width: 80,
@@ -178,9 +219,9 @@ class RidePanel extends StatelessWidget {
             padding: EdgeInsets.all(0),
             child: Icon(Icons.call),
             onPressed: () async {
-              print('call ${state.getRide().driver.mobile}');
-              if(await canLaunch("tel:${state.getRide().driver.mobile}")){
-                var r = await launch("tel:${state.getRide().driver.mobile}");
+              print('call ${taxi.getRide().driver.mobile}');
+              if(await canLaunch("tel:${taxi.getRide().driver.mobile}")){
+                var r = await launch("tel:${taxi.getRide().driver.mobile}");
                 print("result : $r");
               }else{
                 print('cant lunch');
@@ -201,7 +242,8 @@ class RidePanel extends StatelessWidget {
 
   Column buildDriver(BuildContext context) {
     final locale = LocalizedApp.of(context).delegate.currentLocale.languageCode;
-    final score = state.getRide().driver.score;
+    final taxi = Provider.of<Taxi>(context);
+    final score = taxi.getRide().driver.score;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -220,8 +262,8 @@ class RidePanel extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    (locale == 'fa' || locale == 'ar') ? '${state.getRide().driver.firstName} ${state.getRide().driver.lastName}' 
-                      : '${state.getRide().driver.firstNameEn} ${state.getRide().driver.lastNameEn}'
+                    (locale == 'fa' || locale == 'ar') ? '${taxi.getRide().driver.firstname} ${taxi.getRide().driver.lastname}' 
+                      : '${taxi.getRide().driver.firstnameEn} ${taxi.getRide().driver.lastnameEn}'
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 4.0),
@@ -242,13 +284,14 @@ class RidePanel extends StatelessWidget {
         ),
         Container(
           padding: EdgeInsets.only(top: 8, bottom: 12),
-          child: KishVehiclePlate(vehicle: state.getRide().vehicle)
+          child: KishVehiclePlate(vehicle: taxi.getRide().vehicle)
         ),
       ],
     );
   }
 
   Container buildRideData(BuildContext context) {
+    final taxi = Provider.of<Taxi>(context);
     return Container(
       // height: 80,
       // width: double.infinity,
@@ -262,19 +305,19 @@ class RidePanel extends StatelessWidget {
           children: <Widget>[
             RideDatalet(
               label: translate("taxi_query.distance"), 
-              data: translate("taxi_query.distanceKilometer", args: {"distance": formatNumber(context, state.getRideApproach().distance / 1000)}),
+              data: translate("taxi_query.distanceKilometer", args: {"distance": formatNumber(context, taxi.getRideApproach().distance / 1000)}),
             ),
             RideDatalet(
               label: translate("taxi_query.eta"), 
-              data: translate("taxi_query.etaMinute", args: {"eta": formatNumber(context, (state.getRideApproach().eta / 60).ceil())}),
+              data: translate("taxi_query.etaMinute", args: {"eta": formatNumber(context, (taxi.getRideApproach().eta / 60).ceil())}),
             ),
             RideDatalet(
               label: translate("taxi_query.figure"), 
-              data: translate('taxi_query.price', args: {'price': formatNumber(context, state.getRide().price)}),
+              data: translate('taxi_query.price', args: {'price': formatNumber(context, taxi.getRide().price)}),
             ),
             RideDatalet(
               label: translate("taxi_query.paymentMethod"), 
-              data: translate(state.getRide().paymentType.toString()),
+              data: translate(taxi.getRide().paymentType.toString()),
             ),
           ],
         ),
@@ -367,10 +410,12 @@ class RideQueryPanel extends StatelessWidget {
     Key key,
     @required this.state,
   }) : super(key: key);
-  final MapControllerHookState state;
+  final MapState state;
 
   @override
   Widget build(BuildContext context) {
+    final taxi = Provider.of<Taxi>(context);
+
     return Positioned(
       bottom: 40,
       left: 20,
@@ -398,7 +443,7 @@ class RideQueryPanel extends StatelessWidget {
               child: Text(translate('taxi_query.cancel_request')),
               onPressed: (){},
               onLongPress: (){
-                state.cancelRide();
+                taxi.cancelRide();
               },
             ),
           ),
@@ -414,10 +459,12 @@ class OfferSelection extends StatelessWidget {
     @required this.state,
   }) : super(key: key);
 
-  final MapControllerHookState state;
+  final MapState state;
 
   @override
   Widget build(BuildContext context) {
+    final taxi = Provider.of<Taxi>(context);
+
     return Positioned(
       bottom: 40,
       left: 20,
@@ -438,17 +485,17 @@ class OfferSelection extends StatelessWidget {
                   offset: Offset(5, 5),
                 )]
               ),
-              child: state.getOffers() != null ? SingleChildScrollView(
+              child: taxi.getOffers() != null ? SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: <Widget>[
-                    for(var offer in state.getOffers()) Padding(
+                    for(var offer in taxi.getOffers()) Padding(
                       padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 8, bottom: 8),
-                      child: TaxiOffer(offer: offer, state: state),
+                      child: TaxiOffer(offer: offer),
                     ),
                   ],
                 ),
-              ) : state.getRequestingOffers() ? 
+              ) : taxi.getRequestingOffers() ? 
                 Container(
                  height: 160,
                  width: double.infinity, child: Center(child: CircularProgressIndicator())
@@ -461,8 +508,8 @@ class OfferSelection extends StatelessWidget {
               width: double.infinity,
               child: RaisedButton(
                 child: Text(translate('taxi_query.request')),
-                onPressed: state.getSelectedOffer() == null ? null : (){
-                  state.setRequestingRide(true);
+                onPressed: taxi.getSelectedOffer() == null ? null : (){
+                  taxi.setRequestingRide(true);
                 },
               ),
             ),
@@ -475,26 +522,25 @@ class OfferSelection extends StatelessWidget {
 
 class TaxiOffer extends StatelessWidget {
   final Offer _offer;
-  final MapControllerHookState _state;
 
   const TaxiOffer({
     Key key,
     Offer offer,
-    MapControllerHookState state,
-  }) : this._offer = offer, this._state = state, super(key: key);
+  }) : this._offer = offer, super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final taxi = Provider.of<Taxi>(context);
     return GestureDetector(
       onTap: (){
-        if(_offer.enabled) _state.setSelectedOffer(_offer);
+        if(_offer.enabled) taxi.setSelectedOffer(_offer);
       },
       child: Container(
         width: 90,
         padding: EdgeInsets.only(left: 8, right: 8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(4),
-          border: Border.all(width: _state.getSelectedOffer()!=_offer ? 0 : 2),
+          border: Border.all(width: taxi.getSelectedOffer()!=_offer ? 0 : 2),
         ),
         foregroundDecoration: _offer.enabled ? null : BoxDecoration(
           color: Colors.grey,
@@ -544,10 +590,12 @@ class MapArea extends StatelessWidget {
     @required this.state,
   }) : super(key: key);
 
-  final MapControllerHookState state;
+  final MapState state;
 
   @override
   Widget build(BuildContext context) {
+    final taxi = Provider.of<Taxi>(context);
+
     return FlutterMap(
       mapController: state.controller,
       options: MapOptions(
@@ -581,32 +629,45 @@ class MapArea extends StatelessWidget {
         ),
         MarkerLayerOptions(
           markers: [
-            if(state.getPickup()!=null) Marker(
+            if(taxi.getPickup()!=null) Marker(
               width: 40.0,
               height: 40.0,
-              point: LatLng(state.getPickup().lat, state.getPickup().lng),
+              point: LatLng(taxi.getPickup().lat, taxi.getPickup().lng),
               builder: (ctx) =>
               Container(
                 child: Image.asset('assets/map/pickup.png'),
               ),
               anchorPos: AnchorPos.align(AnchorAlign.top),
             ),
-            if(state.getDestination()!=null) Marker(
+            if(taxi.getDestination()!=null) Marker(
               width: 40.0,
               height: 40.0,
-              point: LatLng(state.getDestination().lat, state.getDestination().lng),
+              point: LatLng(taxi.getDestination().lat, taxi.getDestination().lng),
               builder: (ctx) =>
               Container(
                 child: Image.asset('assets/map/destination.png'),
               ),
               anchorPos: AnchorPos.align(AnchorAlign.top),
             ),
+            if(taxi.getRideApproach()!=null) Marker(
+              width: 40.0,
+              height: 40.0,
+              point: taxi.getRideApproach().location,
+              builder: (ctx) =>
+              Container(
+                child: Transform.rotate(
+                  angle: pi * (taxi.getRideApproach().heading + 175) / 180,
+                  child: Image.asset('assets/map/driver.png', color: Colors.black),
+                ),
+              ),
+              anchorPos: AnchorPos.align(AnchorAlign.top),
+            ),
           ],
         ),
-        if(state.route!=null) PolylineLayerOptions(
+        if(taxi.route!=null) PolylineLayerOptions(
           polylines: [
             Polyline(
-              points: state.route.points,
+              points: taxi.route.points,
               strokeWidth: 4,
               color: Colors.purple,
             ),
@@ -623,7 +684,7 @@ class DestinationAlert extends StatelessWidget {
     @required this.state,
   }) : super(key: key);
 
-  final MapControllerHookState state;
+  final MapState state;
 
   @override
   Widget build(BuildContext context) {
@@ -687,7 +748,7 @@ class PickupAlert extends StatelessWidget {
     @required this.state,
   }) : super(key: key);
 
-  final MapControllerHookState state;
+  final MapState state;
 
   @override
   Widget build(BuildContext context) {
@@ -751,10 +812,11 @@ class AddressPanel extends StatelessWidget {
     @required this.state,
   }) : super(key: key);
 
-  final MapControllerHookState state;
+  final MapState state;
 
   @override
   Widget build(BuildContext context) {
+    final taxi = Provider.of<Taxi>(context);
     return Positioned(
       top: 100,
       left: 20,
@@ -773,7 +835,7 @@ class AddressPanel extends StatelessWidget {
         ),
         child: Column(
           children: <Widget>[
-            if(state.getPickup()==null) GestureDetector(
+            if(taxi.getPickup()==null) GestureDetector(
                 onTap: () async{
                   final selected = await showSearch(context: context, delegate: AddressSearch(translate('taxi_query.pickup.label'), lat: this.state.controller.center.latitude, lng: this.state.controller.center.longitude));
                   if(selected != null){
@@ -805,7 +867,7 @@ class AddressPanel extends StatelessWidget {
                 ],
               ),
             ),
-            if(state.getPickup()!=null) Row(
+            if(taxi.getPickup()!=null) Row(
               children: <Widget>[
                 Padding(
                   padding: const EdgeInsets.all(14.0),
@@ -819,7 +881,7 @@ class AddressPanel extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.only(top: 14.0, bottom: 14.0),
                     child: Text(
-                      "${state.getPickup()?.name ?? ''}",
+                      "${taxi.getPickup()?.name ?? ''}",
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 14,
@@ -827,17 +889,17 @@ class AddressPanel extends StatelessWidget {
                     ),
                   ),
                 ),
-                if(state.getPickup()!=null && state.getRide()==null && !state.getRequestingRide()) RawMaterialButton(
+                if(taxi.getPickup()!=null && taxi.getRide()==null && !taxi.getRequestingRide()) RawMaterialButton(
                   constraints: BoxConstraints(),
                   padding: EdgeInsets.all(0),
                   onPressed: (){
-                    state.setPickup(null);
+                    taxi.setPickup(null);
                   },
                   child: Icon(Icons.clear, size: 20),
                 ),
               ],
             ),
-            if(state.getPickup()!=null && state.getDestination()==null) GestureDetector(
+            if(taxi.getPickup()!=null && taxi.getDestination()==null) GestureDetector(
                 onTap: () async{
                   final selected = await showSearch(context: context, delegate: AddressSearch(translate('taxi_query.destination.label'), lat: this.state.controller.center.latitude, lng: this.state.controller.center.longitude));
                   if(selected != null){
@@ -869,7 +931,7 @@ class AddressPanel extends StatelessWidget {
                 ],
               ),
             ),
-            if(state.getDestination()!=null) Row(
+            if(taxi.getDestination()!=null) Row(
               children: <Widget>[
                 Padding(
                   padding: const EdgeInsets.all(14.0),
@@ -883,7 +945,7 @@ class AddressPanel extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.only(top: 14.0, bottom: 14.0),
                     child: Text(
-                      "${state.getDestination().name}",
+                      "${taxi.getDestination().name}",
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 14,
@@ -891,11 +953,11 @@ class AddressPanel extends StatelessWidget {
                     ),
                   ),
                 ),
-                if(state.getDestination()!=null && state.getRide()==null && !state.getRequestingRide()) RawMaterialButton(
+                if(taxi.getDestination()!=null && taxi.getRide()==null && !taxi.getRequestingRide()) RawMaterialButton(
                   constraints: BoxConstraints(),
                   padding: EdgeInsets.all(0),
                   onPressed: (){
-                    state.setDestination(null);
+                    taxi.setDestination(null);
                   },
                   child: Icon(Icons.clear, size: 20),
                 ),

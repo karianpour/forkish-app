@@ -12,8 +12,8 @@ part 'signup.g.dart';
 RegExp mobilePattern = RegExp(r'^09[0-9]{9}$');
 
 class LoginData {
-  String firstName = "";
-  String lastName = "";
+  String firstname = "";
+  String lastname = "";
   String mobile = "";
 }
 
@@ -55,12 +55,12 @@ Widget signup(BuildContext context) {
               SizedBox(height: 48),
               TextFormField(
                 decoration: InputDecoration(
-                  labelText: translate('signup.firstName'),
+                  labelText: translate('signup.firstname'),
                   prefixIcon: Icon(Icons.person),
                 ),
                 keyboardType: TextInputType.text,
                 onChanged: (value){
-                  data.firstName = value;
+                  data.firstname = value;
                 },
                 validator: (value){
                   if(value=='') return translate('signup.mandatory');
@@ -70,12 +70,12 @@ Widget signup(BuildContext context) {
               SizedBox(height: 16),
               TextFormField(
                 decoration: InputDecoration(
-                  labelText: translate('signup.lastName'),
+                  labelText: translate('signup.lastname'),
                   prefixIcon: Icon(Icons.person),
                 ),
                 keyboardType: TextInputType.text,
                 onChanged: (value){
-                  data.lastName = value;
+                  data.lastname = value;
                 },
                 validator: (value){
                   if(value=='') return translate('signup.mandatory');
@@ -114,8 +114,8 @@ Widget signup(BuildContext context) {
                 onPressed: () async {
                   if(formKey.currentState.validate()){
                     final result = await auth.signup(
-                      firstName: data.firstName,
-                      lastName: data.lastName,
+                      firstname: data.firstname,
+                      lastname: data.lastname,
                       mobile: data.mobile,
                     );
                     if(result){
