@@ -32,6 +32,12 @@ class Taxi with ChangeNotifier {
     fetchTaxiState();
   }
 
+  void reinitialize(){
+    _loaded = false;
+    fetchTaxiState();
+    notifyListeners();
+  }
+
   void setupState(PassengerState passengerState){
     if(passengerState!=null && passengerState.hasAnyState){
       _pickup = passengerState.pickup;
@@ -51,9 +57,17 @@ class Taxi with ChangeNotifier {
     }else{
       _pickup = null;
       _destination = null;
+      _route = null;
       _requestingOffers = false;
+      _id = null;
+      _offers = null;
+      _selectedOffer = null;
       _requestingRide = false;
       _requestCancelled = false;
+      _ride = null;
+      _rideApproach = null;
+      _rideProgress = null;
+
     }
     this._loaded = true;
     notifyListeners();
@@ -271,6 +285,9 @@ class Taxi with ChangeNotifier {
 
   void cancelRide() {
     fetchCancelRide(this._id, this._controller.currentLocation());
+    this._pickup = null;
+    this._destination = null;
+    this._route = null;
     this._requestingOffers = false;
     this._id = null;
     this._offers = null;

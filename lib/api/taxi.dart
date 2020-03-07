@@ -8,9 +8,9 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong/latlong.dart';
 import 'package:uuid/uuid.dart';
 
-var uuid = Uuid();
+import 'backend_address.dart';
 
-var wsBaseUrl = 'ws://192.168.1.52:4080';
+var uuid = Uuid();
 
 class PassengerState {
   bool hasAnyState = false;
@@ -123,7 +123,10 @@ Future<bool> connect() async {
             }
           }
         },
-        onDone: () => print('[+]Done :)'),
+        onDone: () {
+          _isAlive = false;
+          print('[+]Done :)');
+        },
         onError: (err) => print('[!]Error -- ${err.toString()}'),
         cancelOnError: true,
       );

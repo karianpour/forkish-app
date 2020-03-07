@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:for_kish/helpers/types.dart';
 
-var baseUrl = 'http://192.168.1.52:4080';
+import 'backend_address.dart';
+
 
 Future<bool> requestVerificationCode(String mobile) async {
   // await Future.delayed(Duration(milliseconds: 200));

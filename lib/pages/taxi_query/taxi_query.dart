@@ -33,6 +33,7 @@ Widget taxiQuery(BuildContext context) {
       MapArea(state: state),
       HereMarker(state: state),
       if(!taxi.loaded) Center(child: CircularProgressIndicator(),),
+      if(taxi.loaded) TaxiStateRefresher(taxi: taxi),
       if(taxi.loaded && taxi.getPickup()==null || taxi.getDestination()==null) CenterMarker(state: state),
       if(taxi.loaded && taxi.getRide()==null) AddressPanel(state: state),
       // if(taxi.loaded && taxi.getPickup()==null) PickupAlert(state: state),
@@ -42,6 +43,33 @@ Widget taxiQuery(BuildContext context) {
       if(taxi.loaded && taxi.getRide()!=null) RidePanel(state: state),
     ],
   );
+}
+
+class TaxiStateRefresher extends StatelessWidget {
+  const TaxiStateRefresher({
+    Key key,
+    @required this.taxi,
+  }) : super(key: key);
+
+  final Taxi taxi;
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      top: (120.0 + ((taxi.getPickup()==null ? 0 : 48) + 48) * (taxi.getRide()==null ? 1 : 0)),
+      left: 0,
+      right: 0,
+      child: Container(
+        alignment: AlignmentDirectional.centerEnd,
+        child: FlatButton(
+          onPressed: (){
+            taxi.reinitialize();
+          },
+          child: Icon(Icons.refresh, color: Colors.black),
+        ),
+      ),
+    );
+  }
 }
 
 class CenterMarker extends StatelessWidget {
@@ -606,8 +634,8 @@ class MapArea extends StatelessWidget {
         onPositionChanged: (mp, r){
           state.centerChanged(mp.center);
         },
-        swPanBoundary: LatLng(26.485096, 53.869411),
-        nePanBoundary: LatLng(26.604128, 54.059012),
+        // swPanBoundary: LatLng(26.485096, 53.869411),
+        // nePanBoundary: LatLng(26.604128, 54.059012),
       ),
       layers: [
         TileLayerOptions(
