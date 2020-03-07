@@ -300,6 +300,22 @@ class Taxi with ChangeNotifier {
     notifyListeners();
   }
 
+  void canceledByDriver() {
+    this._pickup = null;
+    this._destination = null;
+    this._route = null;
+    this._requestingOffers = false;
+    this._id = null;
+    this._offers = null;
+    this._selectedOffer = null;
+    this._requestingRide = false;
+    this._requestCancelled = true;
+    this._ride = null;
+    this._rideApproach = null;
+    this._rideProgress = null;
+    notifyListeners();
+  }
+
   void setMapController(MapState controller) {
     this._controller = controller;
     // this._controller?.informMeAboutLocationChanged(locationChanged);

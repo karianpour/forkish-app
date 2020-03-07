@@ -49,6 +49,7 @@ class Auth with ChangeNotifier {
       if(response != null){
         this.passenger = response.passenger;
         this.token = response.token;
+        setWebSocketToken(this.token);
         this.waitingForCode = true;
         this.loggedin = true;
         notifyListeners();
