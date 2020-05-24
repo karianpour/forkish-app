@@ -149,6 +149,7 @@ final Map<String, WidgetBuilder> forKishRoutes = {
 @widget
 Widget appDrawer(BuildContext context) {
   final auth = Provider.of<Auth>(context);
+  final locale = LocalizedApp.of(context).delegate.currentLocale.languageCode;
 
   return Drawer(
     child: ListView(
@@ -196,14 +197,14 @@ Widget appDrawer(BuildContext context) {
             auth.relogin();
           },
         ),
-        ListTile(
+        if(locale != 'fa') ListTile(
           title: Text(translate('languages.farsi')),
           onTap: () {
             Navigator.pop(context);
             changeLocale(context, 'fa');
           },
         ),
-        ListTile(
+        if(locale != 'en') ListTile(
           title: Text(translate('languages.english')),
           onTap: () {
             Navigator.pop(context);

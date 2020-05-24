@@ -80,11 +80,13 @@ Widget confirm(BuildContext context) {
                   textInputType: TextInputType.number,
                   obsecureText: false,
                   animationType: AnimationType.fade,
-                  shape: PinCodeFieldShape.underline,
                   animationDuration: Duration(milliseconds: 50),
+                  pinTheme: PinTheme(
+                    shape: PinCodeFieldShape.underline,
+                    fieldHeight: 40,
+                    fieldWidth: 30,
                   // borderRadius: BorderRadius.circular(5),
-                  fieldHeight: 40,
-                  fieldWidth: 30,
+                  ),
                   onChanged: (value) {
                     data.code = value?.trim() ?? "";
                   },

@@ -44,6 +44,10 @@ class MapState extends HookState<MapState, _MapHook> {
           firstTry = false;
         }
         // print(position == null ? 'Unknown' : position.latitude.toString() + ', ' + position.longitude.toString());
+      }, 
+      onError: (err) {
+        print('location cannot be obtained with error');
+        print(err);
       }
     );
 
