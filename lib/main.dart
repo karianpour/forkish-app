@@ -33,7 +33,7 @@ void main() async {
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
 
   var delegate = await LocalizationDelegate.create(
-    fallbackLocale: 'fa',
+    fallbackLocale: 'en',
     supportedLocales: ['en', 'fa'],
     preferences: TranslatePreferences(),
   );

@@ -4,14 +4,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class TranslatePreferences implements ITranslatePreferences
 {
-    static const String _selectedLocaleKey = 'fa';
+    static const String _selectedLocaleKey = 'locale';
 
     @override
     Future<Locale> getPreferredLocale() async
     {
         final preferences = await SharedPreferences.getInstance();
 
-        if(!preferences.containsKey(_selectedLocaleKey)) return const Locale('fa');
+        if(!preferences.containsKey(_selectedLocaleKey)) return const Locale('en');
 
         var locale = preferences.getString(_selectedLocaleKey);
 
