@@ -367,7 +367,7 @@ class KishVehiclePlate extends StatelessWidget {
     final withClass = vehicle.classNumber!=null && vehicle.classNumber.length>0;
     return Container(
       height: 30,
-      width: withClass ? 130 : 105,
+      width: withClass ? 130 : 115,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(5),
         border: Border.all(width: 2),
@@ -384,7 +384,7 @@ class KishVehiclePlate extends StatelessWidget {
             child: Center(child: Text('Kish')),
           ),
           Container(
-            width: 56,
+            width: 66,
             child: Center(child: Text(vehicle.mainNumber))
           ),
           if(withClass) 
