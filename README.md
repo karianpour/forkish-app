@@ -1,5 +1,5 @@
 # for_kish
-This is a passenger application for managing driver and passenger coordination. The product is designed by my friend "Mostafa Khalilnasab".
+This is a passenger application for managing driver and passenger coordination. The product is designed by my friend ["Mostafa Khalilnasab"](https://github.com/mostafakhn).
 
 The driver mobile app is here[https://github.com/karianpour/forkish-driver]
 
